@@ -4,6 +4,7 @@ using System.Collections;
 public class Controller : MonoBehaviour {
 	
 	private Vector3 velocity;
+	private bool superjump = false;
 	//private bool jumping;
 	
 	// Use this for initialization
@@ -13,7 +14,7 @@ public class Controller : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		Debug.Log(OnGround());
+		//Debug.Log(OnGround());
 		velocity = rigidbody.velocity;
 		Movement();
 		rigidbody.velocity = velocity;
@@ -21,18 +22,35 @@ public class Controller : MonoBehaviour {
 	
 	private void Movement()
 	{
-		velocity.x = 5.0f;
+			
+		if (Physics.Raycast(transform.position-Vector3.up*0.4f, Vector3.right, .50f) || 
+		    Physics.Raycast(transform.position+Vector3.up*0.4f, Vector3.right, .50f) ) {
+			velocity.x = 0.0f;
+		}else{
+			velocity.x = 5.0f;
+		}
 		
 		if(Input.GetKey(KeyCode.Space))
 		{
 			if(OnGround())
 			{
-				velocity.y = 6.0f;
+				if (superjump){
+					velocity.y = 9.0f;
+					superjump = false;
+				}else
+					velocity.y = 6.0f;
 			}
 		}
 		
 		//velocity *= 0.8f;
 	}
+	
+    private void OnTriggerEnter(Collider other) {
+		if (other.gameObject.name == "PickupJump"){
+			superjump = true;
+		}
+        Destroy(other.gameObject);
+    }
 	
 	private bool OnGround()
 	{
